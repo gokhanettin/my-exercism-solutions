@@ -1,5 +1,7 @@
 #include "hamming.h"
 #include <stdexcept>
+#include <numeric>
+#include <functional>
 
 namespace hamming {
 
@@ -9,13 +11,8 @@ int compute(const std::string& s1, const std::string& s2)
         throw std::domain_error("Size mismatch");
     }
 
-    int ret = 0;
-    for (size_t i{0}; i < s1.size(); ++i) {
-        if (s1[i] != s2[i]) {
-            ++ret;
-        }
-    }
-    return ret;
+    return std::inner_product(begin(s1), end(s1),
+        begin(s2), 0, std::plus<>{}, std::not_equal_to<>{});
 }
 
 }  // namespace hamming
