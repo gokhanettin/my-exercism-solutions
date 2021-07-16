@@ -1,23 +1,29 @@
 #include "hexadecimal.h"
+#include <numeric>
 
 namespace hexadecimal {
 
 unsigned int convert(const std::string& s)
 {
-    unsigned int ret = 0;
-    const std::string digits = "0123456789ABCDEF";
-
-    for (size_t i{0}; i < s.size(); ++i) {
-        char c = std::toupper(s[i]);
-        size_t pos = digits.find(c);
-        if (pos != std::string::npos) {
-            ret += pos * (1U << (4 * (s.size() - i - 1)));
-        } else {
-            ret = 0;
-            break;
+    bool valid = true;
+    const std::string digits{"0123456789ABCDEF"};
+    size_t number = std::accumulate(begin(s), end(s), 0,
+        [&](size_t acc, size_t digit) {
+            size_t pos = digits.find(std::toupper(digit));
+            if (pos == std::string::npos) {
+                valid = false;
+                return static_cast<size_t>(0);
+            } else {
+                return pos + (acc << 4);
+            }
         }
+    );
+
+    if (!valid) {
+        number = 0;
     }
-    return ret;
+
+    return number;
 }
 
 }  // namespace hexadecimal
