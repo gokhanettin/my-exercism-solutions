@@ -3,18 +3,10 @@
 
 namespace reverse_string {
 
-std::string reverse_string(const std::string& s)
+std::string reverse_string(std::string s)
 {
-    std::string tmp{s};
-    std::reverse(begin(tmp), end(tmp));
-    return tmp;
-
-    // std::string tmp;
-    // for (auto iter{crbegin(s)}; iter != std::crend(s); ++iter) {
-    //     tmp.push_back(*iter);
-    // }
-    // return tmp;
+    std::reverse(begin(s), end(s));
+    return s;
 }
-
 
 }  // namespace reverse_string
