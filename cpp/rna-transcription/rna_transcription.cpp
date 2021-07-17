@@ -1,13 +1,14 @@
 #include "rna_transcription.h"
+#include <algorithm>
 
 namespace rna_transcription {
 
 std::string to_rna(const std::string& dna)
 {
     std::string rna{dna};
-    for (auto it{begin(rna)}; it != end(rna); ++it) {
-        *it = to_rna(*it);
-    }
+    std::transform(begin(rna), end(rna), begin(rna),
+     static_cast<char (*)(char)>(to_rna));
+
     return rna;
 }
 
