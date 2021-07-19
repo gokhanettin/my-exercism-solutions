@@ -7,8 +7,8 @@ namespace space_age {
 
 class space_age {
     public:
-        space_age(int64_t seconds);
-        int64_t seconds() const;
+        explicit space_age(std::int64_t seconds);
+        std::int64_t seconds() const;
         double on_earth() const;
         double on_mercury() const;
         double on_venus() const;
@@ -18,7 +18,7 @@ class space_age {
         double on_uranus() const;
         double on_neptune() const;
     private:
-        int64_t seconds_;
+        std::int64_t seconds_;
 };
 
 }  // namespace space_age
