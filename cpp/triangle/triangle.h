@@ -2,7 +2,6 @@
 #define TRIANGLE_H
 
 namespace triangle {
-
 enum class flavor {
     equilateral,
     isosceles,
@@ -10,7 +9,6 @@ enum class flavor {
 };
 
 flavor kind(double a, double b, double c);
-
 }  // namespace triangle
 
-#endif // TRIANGLE_H
+#endif  // TRIANGLE_H
