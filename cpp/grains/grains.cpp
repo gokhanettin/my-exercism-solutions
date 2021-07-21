@@ -7,7 +7,6 @@ unsigned long long square(int nth)
 }
 unsigned long long total()
 {
-    // 2^64 - 1
-    return ~0ULL;
+    return (((1ULL << 63) - 1) << 1) + 1;
 }
 }  // namespace grains
