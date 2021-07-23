@@ -9,12 +9,19 @@ std::string hey(std::string input)
         end(input));
 
     bool question = input.back() == '?';
+    bool any_alpha = false;
+    bool any_lower = false;
     bool empty = input.empty();
-    input.erase(std::remove_if(begin(input), end(input),
-                    [](auto c) { return !std::isalpha(c); }),
-        end(input));
-    bool all_caps = !input.empty() && std::all_of(cbegin(input), cend(input),
-        [](auto c) { return std::isupper(c); });
+
+    for (auto c : input) {
+        if (std::isalpha(c)) {
+            any_alpha = true;
+        }
+        if (std::islower(c)) {
+            any_lower = true;
+        }
+    }
+    bool all_caps = any_alpha && !any_lower;
 
     if (empty) {
         return "Fine. Be that way!";
