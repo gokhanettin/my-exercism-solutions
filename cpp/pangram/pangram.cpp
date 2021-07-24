@@ -1,20 +1,17 @@
 #include "pangram.h"
-#include <algorithm>
-#include <array>
+#include <bitset>
+#include <cctype>
 
 namespace pangram {
 bool is_pangram(const std::string& s)
 {
-    std::array<int, 26> histogram;
+    std::bitset<26> flags;
 
-    histogram.fill(0);
     for (auto c : s) {
-        c = std::tolower(c);
-        if (c >= 'a' && c <= 'z') {
-            ++histogram[c - 'a'];
+        if (std::isalpha(c)) {
+            flags.set(std::tolower(c) - 'a');
         }
     }
-    return !std::any_of(cbegin(histogram), cend(histogram),
-        [](auto val) { return val == 0; });
+    return flags.all();
 }
 } // namespace pangram
