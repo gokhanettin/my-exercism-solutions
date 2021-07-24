@@ -3,25 +3,19 @@
 
 #include <string>
 #include <vector>
-#include <array>
 
 namespace anagram {
-class anagram
-{
+class anagram {
 public:
-    using str_vector = std::vector<std::string>;
-    using histogram = std::array<int, 26>;
+    explicit anagram(const std::string& text);
+    std::vector<std::string> matches(
+        const std::vector<std::string>& candidates) const;
 
-    explicit anagram(std::string text);
-    str_vector matches(const str_vector& candidates) const;
 private:
     bool match(const std::string& text) const;
     std::string text_;
-    histogram histogram_;
-
-
 };
 
-}  // namespace anagram
+} // namespace anagram
 
 #endif // ANAGRAM_H

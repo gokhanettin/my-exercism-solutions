@@ -4,17 +4,6 @@
 
 namespace anagram {
 namespace {
-    anagram::histogram to_histogram(const std::string& text)
-    {
-        anagram::histogram hist{};
-        for (auto c : text) {
-            if (std::isalpha(c)) {
-                ++hist[std::tolower(c) - 'a'];
-            }
-        }
-        return hist;
-    }
-
     std::string to_lowercase(std::string text)
     {
         std::transform(begin(text), end(text),
@@ -22,26 +11,30 @@ namespace {
         return text;
     }
 }
-anagram::anagram(std::string text)
+anagram::anagram(const std::string& text)
     : text_{to_lowercase(text)}
 {
-    histogram_ = to_histogram(text_);
 }
 
-anagram::str_vector anagram::matches(const str_vector& candidates) const
+std::vector<std::string> anagram::matches(
+    const std::vector<std::string>& candidates) const
 {
-    str_vector result;
-    for (const auto& candidate : candidates) {
-        if (match(candidate)) {
-            result.push_back(candidate);
-        }
-    }
+    std::vector<std::string> result;
+    std::copy_if(cbegin(candidates), cend(candidates),
+        std::back_inserter(result),
+        [this](auto candidate) { return match(candidate); });
     return result;
 }
 
 bool anagram::match(const std::string& text) const
 {
     std::string lowercase{to_lowercase(text)};
-    return lowercase != text_ && to_histogram(lowercase) == histogram_;
+
+    if (lowercase.size() != text_.size())
+        return false;
+    if (lowercase == text_)
+        return false;
+    return std::is_permutation(cbegin(lowercase), cend(lowercase),
+        cbegin(text_));
 }
 } // namespace anagram
