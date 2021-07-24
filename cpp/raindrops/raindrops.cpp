@@ -3,13 +3,15 @@
 #include <array>
 
 namespace raindrops {
+namespace {
+const std::array<std::pair<int, std::string>, 3> pairs{{
+    {3, "Pling"},
+    {5, "Plang"},
+    {7, "Plong"},
+}};
+}
 std::string convert(int number)
 {
-    std::array<std::pair<int, std::string>, 3> pairs{{
-        {3, "Pling"},
-        {5, "Plang"},
-        {7, "Plong"},
-    }};
 
     std::string ret;
     for (auto& pair : pairs) {
