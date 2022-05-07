@@ -13,7 +13,7 @@ pub fn winning_hands<'a>(hands: &[&'a str]) -> Vec<&'a str> {
         .enumerate()
         .collect();
     scores.sort_by_key(|(_, eval)| eval.clone());
-    let winner = scores.iter().last().unwrap();
+    let winner = scores.last().unwrap();
     scores
         .iter()
         .rev()
@@ -28,14 +28,14 @@ fn evaluate(hand: &str) -> (Vec<i32>, Vec<i32>) {
         (HashMap::new(), HashSet::new()),
         |(mut rank_counts, mut suits), card| {
             let card = card.as_bytes();
-            let suit = card.iter().last().unwrap();
+            let suit = card.last().unwrap();
             let rank = RANKS
                 .iter()
                 .position(|r| {
                     let b = if card.len() == 3 {
                         &b'T'
                     } else {
-                        card.iter().next().unwrap()
+                        card.first().unwrap()
                     };
                     r == b
                 })
