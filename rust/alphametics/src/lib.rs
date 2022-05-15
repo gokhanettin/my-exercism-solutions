@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::collections::HashSet;
 use std::fmt;
 use std::slice;
 
@@ -22,7 +21,7 @@ where
         Permutation {
             elements,
             size,
-            stack: vec![(Vec::new(), elements.iter())],
+            stack: vec![(Vec::with_capacity(size), elements.iter())],
         }
     }
 }
@@ -63,62 +62,48 @@ where
 }
 
 pub fn solve(input: &str) -> Option<HashMap<char, u8>> {
-    let unknowns: Vec<&str> = input
-        .split(&[' ', '+', '='])
-        .filter(|s| !s.is_empty())
-        .collect();
-    let letters = unknowns
-        .iter()
-        .flat_map(|s| s.bytes())
-        .fold(HashSet::new(), |mut acc, c| {
-            acc.insert(c);
-            acc
-        });
+    let mut power: i64 = -1;
+    let mut prev = ' ';
+    let mut letters = HashMap::new();
+    for c in input.chars().rev() {
+        match c {
+            'A'..='Z' => {
+                let (coeff, _) = letters.entry(c).or_insert((0, false));
+                *coeff += power;
+                power *= 10;
+                prev = c;
+            }
+            '=' | '+' => {
+                let (_, leading) = letters.entry(prev).or_insert((0, false));
+                power = 1;
+                *leading = true;
+            }
+            _ => {}
+        }
+    }
+    let (_, leading) = letters.entry(prev).or_insert((0, false));
+    *leading = true;
 
-    let first_letters: Vec<_> = unknowns
-        .iter()
-        .map(|s| s.as_bytes().first().unwrap_or(&b'0'))
-        .collect();
-
-    let digits = b"1234567890";
+    let digits = &[0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
     let permutations = Permutation::new(digits, letters.len());
-
-    for permutation in permutations {
-        let dict: HashMap<u8, u8> = letters
-            .iter()
-            .copied()
-            .zip(permutation.into_iter().copied())
-            .collect();
-
-        if first_letters
-            .iter()
-            .any(|&b| dict.get(&b).map_or(false, |&digit| digit == b'0'))
-        {
-            continue;
+    'perm: for permutation in permutations {
+        let mut sum = 0;
+        for (&digit, (&letter, &(coeff, leading))) in permutation.iter().zip(letters.iter()) {
+            match (digit, leading, letter, coeff) {
+                (0, true, _, _) => continue 'perm,
+                (digit, _, _, coeff) => {
+                    sum += digit * coeff;
+                }
+            }
         }
-        let guesses: Vec<Vec<_>> = unknowns
-            .iter()
-            .filter_map(|s| {
-                s.bytes()
-                    .map(|b| dict.get(&b).copied())
-                    .collect::<Option<Vec<_>>>()
-            })
-            .collect();
-
-        if guesses.len() != unknowns.len() {
-            continue;
-        }
-
-        let numbers: Vec<u64> = guesses
-            .iter()
-            .flat_map(|v| String::from_utf8_lossy(v).parse::<u64>())
-            .collect();
-
-        if numbers.iter().sum::<u64>() == 2 * numbers.last().unwrap() {
-            return Some(dict.iter().fold(HashMap::new(), |mut acc, (&k, &v)| {
-                acc.insert(k as char, v - b'0');
-                acc
-            }));
+        if sum == 0 {
+            return Some(
+                letters
+                    .keys()
+                    .copied()
+                    .zip(permutation.iter().map(|&digit| *digit as u8))
+                    .collect(),
+            );
         }
     }
     None
