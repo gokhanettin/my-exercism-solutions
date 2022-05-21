@@ -1,30 +1,23 @@
 pub fn find_saddle_points(input: &[Vec<u64>]) -> Vec<(usize, usize)> {
-    let candidates = input
+    input
         .iter()
         .enumerate()
-        .fold(Vec::new(), |mut candidates, (row, vec)| {
-            if let Some(&max) = vec.iter().max() {
-                for col in vec
-                    .iter()
-                    .enumerate()
-                    .filter(|(_, &val)| val == max)
-                    .map(|(col, _)| col)
-                {
-                    candidates.push((row, col, max));
+        .flat_map(|(ri, row)| {
+            let max = row.iter().max().unwrap_or(&0);
+            row.iter().enumerate().filter_map(move |(ci, &val)| {
+                if val == *max {
+                    Some((ri, ci, val))
+                } else {
+                    None
                 }
-            }
-            candidates
-        });
-
-    candidates
-        .into_iter()
-        .filter(|&(_, col, max)| {
-            if let Some(min) = input.iter().map(|vec| vec[col]).min() {
-                min == max
+            })
+        })
+        .filter_map(|(ri, ci, val)| {
+            if input.iter().all(|row| row[ci] >= val) {
+                Some((ri, ci))
             } else {
-                false
+                None
             }
         })
-        .map(|(row, col, _)| (row, col))
         .collect()
 }
