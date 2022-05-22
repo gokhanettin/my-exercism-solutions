@@ -33,33 +33,28 @@ fn encode_primitive(n: u64) -> Option<&'static str> {
 }
 
 fn encode_chunk(n: u64) -> String {
-    let mut number = n;
-    let mut encoded = String::new();
-    if let Some(say) = encode_primitive(number) {
-        encoded.push_str(say);
-    } else {
-        if n >= 100 {
-            let primitive = encode_primitive(number / 100).unwrap();
-            encoded.push_str(primitive);
-            encoded.push_str(" hundred");
-            number %= 100;
-            if number > 0 {
-                encoded.push(' ');
+    match encode_primitive(n) {
+        Some(say) => say.to_string(),
+        None => match n {
+            20..=99 => {
+                let (x, y) = ((n / 10) * 10, n % 10);
+                format!(
+                    "{}-{}",
+                    encode_primitive(x).unwrap(),
+                    encode_primitive(y).unwrap()
+                )
             }
-        }
-        if let Some(say) = encode_primitive(number) {
-            if number > 0 {
-                encoded.push_str(say);
-            }
-        } else {
-            let primitive = encode_primitive((number / 10) * 10).unwrap();
-            encoded.push_str(primitive);
-            encoded.push('-');
-            let primitive = encode_primitive(number % 10).unwrap();
-            encoded.push_str(primitive);
-        }
+            100..=999 => match (n / 100, n % 100) {
+                (x, 0) => format!("{} hundred", encode_primitive(x).unwrap()),
+                (x, y) => format!(
+                    "{} hundred {}",
+                    encode_primitive(x).unwrap(),
+                    encode_chunk(y),
+                ),
+            },
+            _ => panic!("{} not a chunk", n),
+        },
     }
-    encoded
 }
 
 pub fn encode(n: u64) -> String {
@@ -67,9 +62,8 @@ pub fn encode(n: u64) -> String {
         return encode_chunk(n);
     }
 
-    let mut number = n;
-    let mut encoded = String::new();
     let mut chunks = Vec::new();
+    let mut number = n;
     while number > 0 {
         chunks.push(number % 1000);
         number /= 1000;
@@ -84,19 +78,16 @@ pub fn encode(n: u64) -> String {
         "quintillion",
     ];
 
-    let chunk_count = chunks.len();
-    for (index, chunk) in chunks.into_iter().rev().enumerate() {
-        if chunk > 0 {
-            if !encoded.is_empty() {
-                encoded.push(' ');
+    chunks
+        .iter()
+        .rev()
+        .zip(scales[..chunks.len()].iter().rev())
+        .fold(String::new(), |mut acc, (&chunk, &scale)| {
+            if chunk > 0 {
+                acc.push_str(&format!("{} {} ", encode_chunk(chunk), scale));
             }
-            encoded.push_str(&encode_chunk(chunk));
-            let i = chunk_count - index - 1;
-            if i > 0 {
-                encoded.push(' ');
-            }
-            encoded.push_str(scales[i]);
-        }
-    }
-    encoded
+            acc
+        })
+        .trim_end()
+        .to_string()
 }
