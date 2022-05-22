@@ -1,4 +1,14 @@
-fn encode_primitive(n: u64) -> Option<&'static str> {
+const SCALES: [(u64, &str); 7] = [
+    (10u64.pow(2), "hundred"),
+    (10u64.pow(3), "thousand"),
+    (10u64.pow(6), "million"),
+    (10u64.pow(9), "billion"),
+    (10u64.pow(12), "trillion"),
+    (10u64.pow(15), "quadrillion"),
+    (10u64.pow(18), "quintillion"),
+];
+
+fn encode_basic(n: u64) -> Option<&'static str> {
     match n {
         0 => Some("zero"),
         1 => Some("one"),
@@ -32,62 +42,27 @@ fn encode_primitive(n: u64) -> Option<&'static str> {
     }
 }
 
-fn encode_chunk(n: u64) -> String {
-    match encode_primitive(n) {
-        Some(say) => say.to_string(),
-        None => match n {
-            20..=99 => {
-                let (x, y) = ((n / 10) * 10, n % 10);
+pub fn encode(n: u64) -> String {
+    if n < 100 {
+        match encode_basic(n) {
+            Some(say) => say.to_string(),
+            None => {
+                let (ten, one) = ((n / 10) * 10, n % 10);
                 format!(
                     "{}-{}",
-                    encode_primitive(x).unwrap(),
-                    encode_primitive(y).unwrap()
+                    encode_basic(ten).unwrap(),
+                    encode_basic(one).unwrap()
                 )
             }
-            100..=999 => match (n / 100, n % 100) {
-                (x, 0) => format!("{} hundred", encode_primitive(x).unwrap()),
-                (x, y) => format!(
-                    "{} hundred {}",
-                    encode_primitive(x).unwrap(),
-                    encode_chunk(y),
-                ),
-            },
-            _ => panic!("{} not a chunk", n),
-        },
-    }
-}
-
-pub fn encode(n: u64) -> String {
-    if n < 1000 {
-        return encode_chunk(n);
-    }
-
-    let mut chunks = Vec::new();
-    let mut number = n;
-    while number > 0 {
-        chunks.push(number % 1000);
-        number /= 1000;
-    }
-    let scales = vec![
-        "",
-        "thousand",
-        "million",
-        "billion",
-        "trillion",
-        "quadrillion",
-        "quintillion",
-    ];
-
-    chunks
-        .iter()
-        .rev()
-        .zip(scales[..chunks.len()].iter().rev())
-        .fold(String::new(), |mut acc, (&chunk, &scale)| {
-            if chunk > 0 {
-                acc.push_str(&format!("{} {} ", encode_chunk(chunk), scale));
+        }
+    } else {
+        for (pow, name) in SCALES.into_iter().rev() {
+            match (n / pow, n % pow) {
+                (0, _) => continue,
+                (quo, 0) => return format!("{} {}", encode(quo), name),
+                (quo, rem) => return format!("{} {} {}", encode(quo), name, encode(rem)),
             }
-            acc
-        })
-        .trim_end()
-        .to_string()
+        }
+        unreachable!();
+    }
 }
