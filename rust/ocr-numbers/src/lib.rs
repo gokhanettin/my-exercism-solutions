@@ -21,46 +21,48 @@ pub fn convert(input: &str) -> Result<String, Error> {
     if ncols % NCOLS != 0 {
         return Err(Error::InvalidColumnCount(ncols));
     }
+
+    #[rustfmt::skip]
     let hm: HashMap<_, _> = [(" _ ".to_string() +
                               "| |" +
                               "|_|" +
-                              "   ", "0".to_string()),
+                              "   ", '0'),
                              ("   ".to_string() +
                               "  |" +
                               "  |" +
-                              "   ", "1".to_string()),
+                              "   ", '1'),
                              (" _ ".to_string() +
                               " _|" +
                               "|_ " +
-                              "   ", "2".to_string()),
+                              "   ", '2'),
                              (" _ ".to_string() +
                               " _|" +
                               " _|" +
-                              "   ", "3".to_string()),
+                              "   ", '3'),
                              ("   ".to_string() +
                               "|_|" +
                               "  |" +
-                              "   ", "4".to_string()),
+                              "   ", '4'),
                              (" _ ".to_string() +
                               "|_ " +
                               " _|" +
-                              "   ", "5".to_string()),
+                              "   ", '5'),
                              (" _ ".to_string() +
                               "|_ " +
                               "|_|" +
-                              "   ", "6".to_string()),
+                              "   ", '6'),
                              (" _ ".to_string() +
                               "  |" +
                               "  |" +
-                              "   ", "7".to_string()),
+                              "   ", '7'),
                              (" _ ".to_string() +
                               "|_|" +
                               "|_|" +
-                              "   ", "8".to_string()),
+                              "   ", '8'),
                              (" _ ".to_string() +
                               "|_|" +
                               " _|" +
-                              "   ", "9".to_string())].into_iter().collect();
+                              "   ", '9')].into_iter().collect();
 
     let mut numbers = vec![vec![String::new(); ncols / NCOLS]; nrows / NROWS];
     for (row, line) in input.lines().enumerate() {
@@ -72,10 +74,7 @@ pub fn convert(input: &str) -> Result<String, Error> {
     let mut string = String::new();
     for number in numbers {
         for digit in number {
-            string.push_str(match hm.get(&digit) {
-                Some(d) => d,
-                None => "?",
-            });
+            string.push(*hm.get(&digit).unwrap_or(&'?'));
         }
         string.push(',');
     }
